@@ -17,6 +17,7 @@ Configurable values are stored in the `.env` file. You can copy the example set 
 You'll need to update the following values in `.env`:
 - `EVENTBRITE_API_KEY` - Used to pull data from Eventbrite. Log into your Eventbrite account and [retrieve your API key](https://www.eventbrite.com/platform/api-keys).
 - `SECRET_KEY` - Used by Flask for sessions. Run `python3 -c 'import secrets; print(secrets.token_hex())'`
+- `GOOGLE_MAPS_API_KEY` - Used to pull transit route data from Google Maps. Log into your Google Cloud account and [retrieve your API key](https://console.cloud.google.com/google/maps-apis/credentials).
 
 ## Running the App Locally
 
@@ -31,12 +32,13 @@ Essentials:
 - [x] Set up a basic client that can call the Eventbrite API
 - [x] Make a skeleton for the webpage
 - [ ] Cache data in db so we don't have to call the API all the time
-- [ ] Calculate the transit time between the user's location and an event (TravelTime API?)
+- [x] Calculate the transit time between the user's location and an event (Google Maps Routes API)
 - [x] Retrieve a list of events and output the names
-- [ ] Decide on a transit route and output information (time, bus/train line)
+- [x] Decide on a transit route and output information (time, bus/train line)
 - [ ] Calculate when the user should leave home based on the travel time and event time
 - [ ] Handle pagination in Eventbrite requests
-- [ ] Filter out completed events
+- [x] Filter out completed events
+- [ ] Add some tests
 
 Optional extras:
 - [ ] Make it look nice
@@ -44,9 +46,10 @@ Optional extras:
 - [ ] Add cost of event to display
 - [ ] Add max cost filter
 - [ ] Add other event data sources (library RSS feeds? parks district events, if they have some feed/api?)
+- [ ] Make travel time calculation slightly more sophisticated by setting desired arrival time (to account for different transit schedules on different days of week/times of day)
 
 ## Useful Resources
 
 - [Eventbrite API Docs](https://www.eventbrite.com/platform/api)
-
+- [Google Maps Routes API Docs](https://developers.google.com/maps/documentation/routes)
 

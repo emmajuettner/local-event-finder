@@ -12,16 +12,15 @@
         <input type="submit" value="Find Events">
     </form>
 
-    {% if user_name is defined %}
-    <h2>Local Events for {{ user_name }}</h2>
-    {% endif %}
-
   {% for event in events %}
     <article class="event">
       <header>
         <div>
           <h1><a href={{ event["url"] }}>{{ event["name"] }}</a></h1>
-          <div class="about">At {{ event["venue_name"] }} on {{ event["start_time"] }}. {{ event["price"] }}</div>
+          <p>At {{ event["venue_name"] }} on {{ event["start_time"].strftime("%A %b %d, %Y %I:%M %p") }}.</p>
+          <p>{{ event["full_address"] }}</p>
+          <p>{{ event["transit_duration"] }}{{ event["transit_description"] }}</p>
+          <p>{{ event["price"] }}</p>
         </div>
       </header>
     </article>

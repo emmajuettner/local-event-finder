@@ -1,5 +1,6 @@
 import requests
 import json
+import datetime
 
 from flask import current_app
 
@@ -9,16 +10,22 @@ def get_auth():
     return "Bearer " + current_app.config["EVENTBRITE_API_KEY"]
 
 def get_user():
+    print("Retrieving user from Eventbrite API")
     url = BASE_URL + "/users/me"
     headers = {"Authorization": get_auth(), "Content-Type" : "application/json"}
     response = requests.get(url, headers=headers)
     return response.json()["name"]
 
 def get_user_events():
-    user_venues = {"230819579" : "Eli Tea Bar", "99195019" : "Women & Children First"}
+    user_venues = [
+        {"venue_id" : "230819579", "name" : "Eli Tea Bar", "address_1" : "5507 North Clark Street", "city" : "Chicago", "state" : "IL"}, 
+        {"venue_id" : "99195019", "name" : "Women & Children First", "address_1" : "5233 North Clark Street", "city" : "Chicago", "state" : "IL"},
+        {"venue_id" : "294845373", "name" : "Lot'sa", "address_1" : "4150 North Elston Avenue", "city" : "Chicago", "state" : "IL"}
+    ]
     user_events = []
-    for venue_id in user_venues:
-        venue_name = user_venues[venue_id]
+    for venue in user_venues:
+        venue_id = venue["venue_id"]
+        venue_name = venue["name"]
         venue_events = get_venue_events(venue_id)
         for event_id in venue_events:
             event = venue_events[event_id]
@@ -29,15 +36,16 @@ def get_user_events():
                 "url" : event["url"],
                 "venue_id" : event["venue_id"],
                 "price" : event["price"],
+                "full_address" : venue["address_1"] + ", " + venue["city"] + ", " + venue["state"]
             })
     return user_events
 
 def get_user_organizations():
     """ Only returns organizations the user is a member of """
+    print("Retrieving organizations for user from Eventbrite API")
     url = BASE_URL + "/users/me/organizations/"
     headers = {"Authorization" : get_auth(), "Content-Type" : "application/json"}
     response = requests.get(url, headers=headers)
-    print(response.json())
     organizations = response.json()["organizations"]
     user_orgs = {}
     for org in organizations:
@@ -45,6 +53,7 @@ def get_user_organizations():
     return user_orgs
 
 def get_organization_events(org_id):
+    print("Retrieving events for organization from Eventbrite API")
     url = BASE_URL + "/organizations/" + org_id + "/events/?order_by=start_asc&status=live&time_filter=current_future"
     headers = {"Authorization" : get_auth(), "Content-Type" : "application/json"}
     response = requests.get(url, headers=headers)
@@ -52,6 +61,7 @@ def get_organization_events(org_id):
     return construct_event_list(events)
     
 def get_venue_events(venue_id):
+    print("Retrieving events for venue from Eventbrite API")
     url = BASE_URL + "/venues/" + venue_id + "/events/?order_by=start_asc&status=live"
     headers = {"Authorization" : get_auth(), "Content-Type" : "application/json"}
     response = requests.get(url, headers=headers)
@@ -61,19 +71,24 @@ def get_venue_events(venue_id):
 def construct_event_list(event_json):
     """ Constructs a list of event objects based on the "events" json element from the API """
     events = {}
+    current_datetime = datetime.datetime.now()
     for event in event_json:
+        if event["status"] != "live":
+            continue # don't include events that are completed, canceled, etc
         if event["online_event"] == True:
-            continue # not including online events in the listing for now since the focus is on travel times
+            continue # don't include online events in the listing for now since the focus is on travel times
         if event_is_sold_out(event):
             continue # don't include sold out events
+        event_start_datetime = datetime.datetime.fromisoformat(event["start"]["local"])
+        if event_start_datetime < current_datetime:
+            continue # don't include past events
         events[event["id"]] = {
             "name" : event["name"]["text"], 
-            "start_time" : event["start"]["local"],
+            "start_time" : event_start_datetime,
             "url" : event["url"],
             "venue_id" : event["venue_id"],
             "price" : determine_ticket_price(event),
         }
-    print(events)
     return events
 
 def event_is_sold_out(event):

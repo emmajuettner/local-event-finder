@@ -1,11 +1,10 @@
 import os
-import datetime
 
 from flask import Flask
 from flask import render_template
 from dotenv import dotenv_values
 from . import eventbrite
-
+from . import maps
 
 def create_app(test_config=None):
     # set up flask app & configs
@@ -25,7 +24,8 @@ def create_app(test_config=None):
     @app.route('/')
     def index():
         user_events = eventbrite.get_user_events()
-        return render_template('index.html', user_name=eventbrite.get_user(), events=user_events)
+        events_with_transit_info = maps.populate_events_with_transit_info("1060 W Addison St, Chicago, IL", user_events)
+        return render_template('index.html', events=events_with_transit_info)
 
     return app
 
