@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <form action="{{ url_for('index')}}" method="post">
+        <label for="startLocation" class="form-label">Where are you starting from?</label>
+        <input name="startLocation" autocomplete="street-address" class="form-control" id="startLocation" required>
+        <br>
+        <label for="minsAway" class="form-label">How long are you willing to travel? (in minutes)</label>
+        <input name="minsAway" class="form-control" id="minsAway" type="number" required>
+        <br>
+        <input type="submit" value="Find Events">
+    </form>
+
+    {% if user_name is defined %}
+    <h2>Local Events for {{ user_name }}</h2>
+    {% endif %}
+
+  {% for event in events %}
+    <article class="event">
+      <header>
+        <div>
+          <h1><a href={{ event["url"] }}>{{ event["name"] }}</a></h1>
+          <div class="about">At {{ event["venue_name"] }} on {{ event["start_time"] }}. {{ event["price"] }}</div>
+        </div>
+      </header>
+    </article>
+    {% if not loop.last %}
+      <hr>
+    {% endif %}
+  {% endfor %}
+{% endblock %}

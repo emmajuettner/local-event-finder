@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Local Event Finder</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+<section class="content">
+  <header>
+    <h1>Local Event Finder</h1>
+  </header>
+  {% for message in get_flashed_messages() %}
+    <div class="flash">{{ message }}</div>
+  {% endfor %}
+  {% block content %}{% endblock %}
+</section>
+</body>
+</html>
