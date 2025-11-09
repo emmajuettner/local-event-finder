@@ -27,6 +27,12 @@ You'll need to update the following values in `.env`:
 4. Run the app: `flask --app app run --debug`
 5. Visit [localhost:5000](http://localhost:5000/) in your browser to see the app running.
 
+## Running Linter/Test Suite
+
+Run `ruff check` from the project root directory to run the linter.
+
+Run `pytest tests/` from the project root directory to execute the tests.
+
 ## Tasks
 Essentials:
 - [x] Set up a basic client that can call the Eventbrite API

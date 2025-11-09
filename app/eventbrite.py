@@ -1,5 +1,4 @@
 import requests
-import json
 import datetime
 
 from flask import current_app
@@ -75,7 +74,7 @@ def construct_event_list(event_json):
     for event in event_json:
         if event["status"] != "live":
             continue # don't include events that are completed, canceled, etc
-        if event["online_event"] == True:
+        if event["online_event"]:
             continue # don't include online events in the listing for now since the focus is on travel times
         if event_is_sold_out(event):
             continue # don't include sold out events
@@ -94,7 +93,7 @@ def construct_event_list(event_json):
 def event_is_sold_out(event):
     return ("ticket_availability" in event
             and event["ticket_availability"] is not None
-            and event["ticket_availability"]["is_sold_out"] == True)
+            and event["ticket_availability"]["is_sold_out"])
 
 def determine_ticket_price(event):
     """ 
@@ -112,11 +111,11 @@ def determine_ticket_price(event):
         min_price_obj = event["ticket_availability"]["minimum_ticket_price"]
         if min_price_obj is not None:
             currency = min_price_obj["currency"]
-            min_price = min_price_obj["major_price"]
+            min_price = min_price_obj["major_value"]
         max_price_obj = event["ticket_availability"]["maximum_ticket_price"]
         if max_price_obj is not None:
             currency = max_price_obj["currency"]
-            max_price = max_price_obj["major_price"]
+            max_price = max_price_obj["major_value"]
     # try to get external ticketing details if applicable
     if "external_ticketing" in event and event["external_ticketing"] is not None:
         if event["external_ticketing"]["is_free"] is not None and event["external_ticketing"]["is_free"]:
@@ -124,19 +123,30 @@ def determine_ticket_price(event):
         min_price_obj = event["external_ticketing"]["minimum_ticket_price"]
         if min_price_obj is not None:
             currency = min_price_obj["currency"]
-            min_price = min_price_obj["major_price"]
+            min_price = min_price_obj["major_value"]
         max_price_obj = event["external_ticketing"]["maximum_ticket_price"]
         if max_price_obj is not None:
             currency = max_price_obj["currency"]
-            max_price = max_price_obj["major_price"]
+            max_price = max_price_obj["major_value"]
     # format the price range as a human readable string
     if currency is not None and min_price is not None and max_price is not None:
         price = "$" if currency == "USD" else ""
+        min_price_str = format_number_with_optional_two_decimals(min_price)
+        max_price_str = format_number_with_optional_two_decimals(max_price)
         if min_price == max_price:
-            price += min_price
+            price += min_price_str
         else:
-            price += min_price + "-" + max_price
+            price += min_price_str + "-" + max_price_str
         price += " " + currency if currency != "USD" else ""
         return price
     # if we still don't have all the price info at this stage, just don't display anything
     return ""
+
+def format_number_with_optional_two_decimals(num):
+    """ Formats a number so it either has two decimal places or none.
+    
+    E.g. 2.45 becomes "2.45", 5.5 becomes "5.50", 34 becomes "34" """
+    if num.is_integer():
+        return str(num)
+    else:
+        return '{0:.2f}'.format(num)
