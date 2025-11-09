@@ -37,14 +37,14 @@ Run `pytest tests/` from the project root directory to execute the tests.
 Essentials:
 - [x] Set up a basic client that can call the Eventbrite API
 - [x] Make a skeleton for the webpage
+- [ ] Make the form fields functional
 - [ ] Cache data in db so we don't have to call the API all the time
 - [x] Calculate the transit time between the user's location and an event (Google Maps Routes API)
 - [x] Retrieve a list of events and output the names
 - [x] Decide on a transit route and output information (time, bus/train line)
-- [ ] Calculate when the user should leave home based on the travel time and event time
 - [ ] Handle pagination in Eventbrite requests
 - [x] Filter out completed events
-- [ ] Add some tests
+- [x] Add some tests
 
 Optional extras:
 - [ ] Make it look nice
