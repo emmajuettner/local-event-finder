@@ -1,9 +1,10 @@
 import os
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 from dotenv import dotenv_values
 from . import eventbrite
 from . import maps
+from . import input_validation
 
 def create_app(test_config=None):
     # set up flask app & configs
@@ -27,9 +28,23 @@ def create_app(test_config=None):
     @app.route("/", methods=["POST"])
     def index_post():
         form_data = request.form
+        start_location = form_data["startLocation"].strip()
+        mins_away = form_data["minsAway"].strip()
+        is_input_valid = input_validation.validate_input(start_location, mins_away)
+        if not is_input_valid:
+            return redirect(url_for('index_get'))
         user_events = eventbrite.get_user_events()
-        events_with_transit_info = maps.populate_events_with_transit_info(form_data["startLocation"], form_data["minsAway"], user_events)
-        return render_template("index.html", events=events_with_transit_info, mins_away=form_data["minsAway"], start_location=form_data["startLocation"])
+        events_with_transit_info = maps.populate_events_with_transit_info(
+            start_location,
+            mins_away,
+            user_events
+        )
+        return render_template(
+            "index.html", 
+            events=events_with_transit_info, 
+            mins_away=mins_away, 
+            start_location=start_location
+        )
     
     return app
 
