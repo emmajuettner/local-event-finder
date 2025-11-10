@@ -7,32 +7,46 @@ BASE_URL="https://routes.googleapis.com/directions/v2"
 def get_auth():
     return current_app.config["GOOGLE_MAPS_API_KEY"]
 
-def populate_events_with_transit_info(origin_address, events):
+def populate_events_with_transit_info(origin_address, mins_away, events):
+    filtered_events = []
     for event in events:
         transit_info = get_transit_info(origin_address, event["full_address"])
-        event["transit_duration"] = transit_info["duration"]
-        transit_description = ""
-        for step in transit_info["transit_steps"]:
-            transit_description += " " + step["transit_emoji"] + " " + step["transit_name"]
-        event["transit_description"] = transit_description
-    return events
         
+        if transit_info["duration_seconds"] > int(mins_away) * 60:
+            continue # don't include events in the list if they are too far away
+        event["transit_duration"] = transit_info["duration"]
+        event["transit_steps"] = transit_info["transit_steps"]
+        filtered_events.append(event)
+    return filtered_events
 
 def get_transit_info(origin_address, destination_address):
     route_json = get_route(origin_address, destination_address)
     transit_duration = route_json["routes"][0]["localizedValues"]["duration"]["text"]
+    transit_duration_seconds = int(route_json["routes"][0]["duration"].split("s")[0])
     steps = route_json["routes"][0]["legs"][0]["steps"]
     transit_steps = []
     for step in steps:
         if step["travelMode"] == "TRANSIT":
-            transit_name = step["transitDetails"]["transitLine"]["nameShort"]
             transit_type = step["transitDetails"]["transitLine"]["vehicle"]["type"]
-            transit_emoji = get_transit_emoji(transit_type)
             transit_steps.append({
-                "transit_name" : transit_name, 
-                "transit_emoji" : transit_emoji
+                "transit_name" : determine_transit_line_name(step["transitDetails"]["transitLine"]), 
+                "transit_emoji" : get_transit_emoji(transit_type),
+                "transit_bg_color" : step["transitDetails"]["transitLine"]["color"],
+                "transit_text_color" : step["transitDetails"]["transitLine"]["textColor"],
             })
-    return {"duration" : transit_duration, "transit_steps" : transit_steps}
+    return {
+        "duration" : transit_duration, 
+        "duration_seconds" : transit_duration_seconds, 
+        "transit_steps" : transit_steps,
+    }
+
+def determine_transit_line_name(transit_line):
+    if "nameShort" in transit_line:
+        return transit_line["nameShort"]
+    elif "name" in transit_line:
+        return transit_line["name"]
+    else:
+        return "?"
 
 def get_transit_emoji(transit_type):
     """

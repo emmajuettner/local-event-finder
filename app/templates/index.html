@@ -2,24 +2,40 @@
 
 {% block content %}
 
-    <form action="{{ url_for('index')}}" method="post">
-        <label for="startLocation" class="form-label">Where are you starting from?</label>
+    <form action="{{ url_for('index_post')}}" method="post">
+        <label for="startLocation" class="form-label">Where are you starting from? For best results, enter the address in the format "street address, city, state" (for example, "1060 W Addison Street, Chicago, IL")</label>
+        <br>
         <input name="startLocation" autocomplete="street-address" class="form-control" id="startLocation" required>
         <br>
         <label for="minsAway" class="form-label">How long are you willing to travel? (in minutes)</label>
+        <br>
         <input name="minsAway" class="form-control" id="minsAway" type="number" required>
         <br>
         <input type="submit" value="Find Events">
     </form>
 
+  {% if events|length == 0 and mins_away is defined and start_location is defined %}
+  <div class="flash">Could not find any events within {{ mins_away }} Minutes of {{ start_location }}</div>
+  {% endif %}
+
+  {% if events|length > 0 %}
+  <h2>Upcoming Events within {{ mins_away }} Minutes of {{ start_location }}</h2>
+  {% endif %}
+
   {% for event in events %}
     <article class="event">
       <header>
         <div>
-          <h1><a href={{ event["url"] }}>{{ event["name"] }}</a></h1>
-          <p>At {{ event["venue_name"] }} on {{ event["start_time"].strftime("%A %b %d, %Y %I:%M %p") }}.</p>
-          <p>{{ event["full_address"] }}</p>
-          <p>{{ event["transit_duration"] }}{{ event["transit_description"] }}</p>
+          <h3><a href={{ event["url"] }}>{{ event["name"] }}</a></h3>
+          <p>{{ event["start_time"].strftime("%A %b %d, %Y %I:%M %p") }}</p>
+          <p>{{ event["venue_name"] }}, {{ event["full_address"] }}</p>
+          <p>{{ event["transit_duration"] }} 
+          {% for step in event["transit_steps"] %}
+            {{ step["transit_emoji"] }} 
+            <span class="transit-line" style="color:{{ step["transit_text_color"] }};background-color:{{ step["transit_bg_color"] }};">{{ step["transit_name"] }}</span>
+            </div>
+          {% endfor %}
+          </p>
           <p>{{ event["price"] }}</p>
         </div>
       </header>

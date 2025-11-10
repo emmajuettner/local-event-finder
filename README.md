@@ -45,6 +45,7 @@ Essentials:
 - [ ] Handle pagination in Eventbrite requests
 - [x] Filter out completed events
 - [x] Add some tests
+- [ ] Add validations for input
 
 Optional extras:
 - [ ] Make it look nice

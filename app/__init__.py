@@ -1,7 +1,6 @@
 import os
 
-from flask import Flask
-from flask import render_template
+from flask import Flask, render_template, request
 from dotenv import dotenv_values
 from . import eventbrite
 from . import maps
@@ -21,11 +20,16 @@ def create_app(test_config=None):
     except OSError:
         pass
         
-    @app.route('/')
-    def index():
-        user_events = eventbrite.get_user_events()
-        events_with_transit_info = maps.populate_events_with_transit_info("1060 W Addison St, Chicago, IL", user_events)
-        return render_template('index.html', events=events_with_transit_info)
+    @app.route("/", methods=["GET"])
+    def index_get():
+        return render_template("index.html", events=[])
 
+    @app.route("/", methods=["POST"])
+    def index_post():
+        form_data = request.form
+        user_events = eventbrite.get_user_events()
+        events_with_transit_info = maps.populate_events_with_transit_info(form_data["startLocation"], form_data["minsAway"], user_events)
+        return render_template("index.html", events=events_with_transit_info, mins_away=form_data["minsAway"], start_location=form_data["startLocation"])
+    
     return app
 
