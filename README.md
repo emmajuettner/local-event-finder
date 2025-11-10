@@ -15,6 +15,17 @@ Each event should display a brief summary including:
 
 It turns out Eventbrite's API doesn't actually let you search events, nor venues, nor organizations. It also doesn't let you look up a user and get a list of organizations that user follows. For this reason, to get an initial list of venues whose events you're interested in, you have to look up their Eventbrite venue IDs and insert those into the database so that we can use that to pull a list of upcoming events at those venues.
 
+## Screenshots
+
+Search form:
+
+<img width="854" height="392" alt="image" src="https://github.com/user-attachments/assets/5879a94d-feee-44a6-b8ad-9bc2833da385" />
+
+Example results:
+
+<img width="849" height="761" alt="image" src="https://github.com/user-attachments/assets/c905c7aa-5c24-4ecc-a2df-f9b41d7c2d14" />
+
+
 ## Configurations
 Configurable values are stored in the `.env` file. You can copy the example set of configurations to start with: `cp .starter-env .env`
 
@@ -43,22 +54,24 @@ Essentials:
 - [x] Set up a basic client that can call the Eventbrite API
 - [x] Make a skeleton for the webpage
 - [x] Make the form fields functional
-- [ ] Cache data in db so we don't have to call the API all the time
+- [x] Cache venues in db so we don't have to call the API every time
+- [ ] Cache events in db to improve performance
 - [x] Calculate the transit time between the user's location and an event (Google Maps Routes API)
 - [x] Retrieve a list of events and output the names
 - [x] Decide on a transit route and output information (time, bus/train line)
-- [ ] Handle pagination in Eventbrite requests
+- [x] Handle pagination in Eventbrite requests
 - [x] Filter out completed events
 - [x] Add some tests
 - [x] Add validations for input
 
-Optional extras:
+Extras:
 - [ ] Make it look nice
 - [ ] Add filters for event tags? (include/exclude)
 - [x] Add cost of event to display
 - [ ] Add max cost filter
 - [ ] Add other event data sources (library RSS feeds? parks district events, if they have some feed/api?)
 - [ ] Make travel time calculation slightly more sophisticated by setting desired arrival time (to account for different transit schedules on different days of week/times of day)
+- [ ] Cache routes in db to improve performance?
 
 ## Useful Resources
 
