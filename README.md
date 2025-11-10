@@ -56,13 +56,16 @@ Essentials:
 - [x] Make the form fields functional
 - [x] Cache venues in db so we don't have to call the API every time
 - [ ] Cache events in db to improve performance
+- [ ] Refactor eventbrite.py/maps.py to pull out functions that aren't actually interacting with the apis and put them somewhere that makes more sense
 - [x] Calculate the transit time between the user's location and an event (Google Maps Routes API)
 - [x] Retrieve a list of events and output the names
 - [x] Decide on a transit route and output information (time, bus/train line)
 - [x] Handle pagination in Eventbrite requests
 - [x] Filter out completed events
-- [x] Add some tests
-- [x] Add validations for input
+- [x] Set up test framework
+- [x] Add some validations for input
+- [ ] Add more robust error handling
+- [ ] Add more tests
 
 Extras:
 - [ ] Make it look nice
