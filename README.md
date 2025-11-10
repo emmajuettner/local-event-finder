@@ -75,6 +75,7 @@ Extras:
 - [ ] Add other event data sources (library RSS feeds? parks district events, if they have some feed/api?)
 - [ ] Make travel time calculation slightly more sophisticated by setting desired arrival time (to account for different transit schedules on different days of week/times of day)
 - [ ] Cache routes in db to improve performance?
+- [ ] Add Google Maps address lookup auto complete to address form field?
 
 ## Useful Resources
 
