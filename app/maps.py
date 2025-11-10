@@ -25,7 +25,10 @@ def get_transit_info(origin_address, destination_address):
     transit_duration_seconds = int(route_json["routes"][0]["duration"].split("s")[0])
     steps = route_json["routes"][0]["legs"][0]["steps"]
     transit_steps = []
+    all_walking_steps = True
     for step in steps:
+        if step["travelMode"] != "WALK":
+            all_walking_steps = False
         if step["travelMode"] == "TRANSIT":
             transit_type = step["transitDetails"]["transitLine"]["vehicle"]["type"]
             transit_steps.append({
@@ -34,6 +37,14 @@ def get_transit_info(origin_address, destination_address):
                 "transit_bg_color" : step["transitDetails"]["transitLine"]["color"],
                 "transit_text_color" : step["transitDetails"]["transitLine"]["textColor"],
             })
+    # Handle the case where the venue is so close that walking is fastest
+    if all_walking_steps:
+        transit_steps.append({
+            "transit_name" : "", 
+            "transit_emoji" : get_transit_emoji("WALK"),
+            "transit_bg_color" : "",
+            "transit_text_color" : "",
+        })
     return {
         "duration" : transit_duration, 
         "duration_seconds" : transit_duration_seconds, 
@@ -66,6 +77,8 @@ def get_transit_emoji(transit_type):
         return "🚢"
     elif transit_type in ["FUNICULAR", "GONDOLA_LIFT"]:
         return "🚡"
+    elif transit_type in ["WALK"]:
+        return "🚶‍➡️"
     else:
         return "🚏"
 

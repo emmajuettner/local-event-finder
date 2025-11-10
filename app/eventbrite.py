@@ -2,11 +2,21 @@ import requests
 import datetime
 
 from flask import current_app
+from app import db
 
 BASE_URL="https://www.eventbriteapi.com/v3"
 
 def get_auth():
     return "Bearer " + current_app.config["EVENTBRITE_API_KEY"]
+
+def refresh_eventbrite_data():
+    """
+    Calls the Eventbrite API to refresh our database cache if needed.
+    
+    Updates venue details and (TODO) will retrieve any new events belonging to them,
+    if the venue was last updated more than a day ago.
+    """
+    refresh_venues()
 
 def get_user():
     print("Retrieving user from Eventbrite API")
@@ -16,11 +26,7 @@ def get_user():
     return response.json()["name"]
 
 def get_user_events():
-    user_venues = [
-        {"venue_id" : "230819579", "name" : "Eli Tea Bar", "address_1" : "5507 North Clark Street", "city" : "Chicago", "state" : "IL"}, 
-        {"venue_id" : "99195019", "name" : "Women & Children First", "address_1" : "5233 North Clark Street", "city" : "Chicago", "state" : "IL"},
-        {"venue_id" : "294845373", "name" : "Lot'sa", "address_1" : "4150 North Elston Avenue", "city" : "Chicago", "state" : "IL"}
-    ]
+    user_venues = get_all_venues()
     user_events = []
     for venue in user_venues:
         venue_id = venue["venue_id"]
@@ -38,6 +44,9 @@ def get_user_events():
                 "full_address" : venue["address_1"] + ", " + venue["city"] + ", " + venue["state"]
             })
     return user_events
+
+def get_all_venues():
+    return db.query_db("SELECT * FROM venue")
 
 def get_user_organizations():
     """ Only returns organizations the user is a member of """
@@ -58,7 +67,39 @@ def get_organization_events(org_id):
     response = requests.get(url, headers=headers)
     events = response.json()["events"]
     return construct_event_list(events)
-    
+
+def refresh_venues():
+    """
+    Check our cached list of venues and retrieve any that have not been updated in the past day.
+    """
+    for venue in db.query_db("""
+        SELECT * FROM venue 
+        WHERE (last_retrieved IS NULL OR last_retrieved < CURRENT_TIMESTAMP - 1)
+    """):
+        venue_latest = get_venue(venue["venue_id"])
+        db.execute_sql("""
+            UPDATE venue SET
+            last_retrieved = CURRENT_TIMESTAMP,
+            name = ?,
+            address_1 = ?,
+            city = ?,
+            state = ?
+            WHERE venue_id = ?
+        """, args=[
+            venue_latest["name"],
+            venue_latest["address"]["address_1"],
+            venue_latest["address"]["city"],
+            venue_latest["address"]["region"],
+            venue["venue_id"]
+        ])
+
+def get_venue(venue_id):
+    print("Retrieving venue from Eventbrite API")
+    url = BASE_URL + "/venues/" + venue_id
+    headers = {"Authorization" : get_auth(), "Content-Type" : "application/json"}
+    response = requests.get(url, headers=headers)
+    return response.json()
+
 def get_venue_events(venue_id):
     print("Retrieving events for venue from Eventbrite API")
     url = BASE_URL + "/venues/" + venue_id + "/events/?order_by=start_asc&status=live"
@@ -81,6 +122,8 @@ def construct_event_list(event_json):
         event_start_datetime = datetime.datetime.fromisoformat(event["start"]["local"])
         if event_start_datetime < current_datetime:
             continue # don't include past events
+        if event_start_datetime > current_datetime + datetime.timedelta(days=14):
+            continue # don't include events that are more than 2 weeks away
         events[event["id"]] = {
             "name" : event["name"]["text"], 
             "start_time" : event_start_datetime,

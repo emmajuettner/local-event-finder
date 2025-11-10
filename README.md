@@ -24,8 +24,9 @@ You'll need to update the following values in `.env`:
 1. Run `python3 -m venv .venv` in the project's root directory to set up your local virtual environment.
 2. Activate the virtual environment: `source .venv/bin/activate`
 3. Install the required dependencies: `pip install -r requirements.txt`
-4. Run the app: `flask --app app run --debug`
-5. Visit [localhost:5000](http://localhost:5000/) in your browser to see the app running.
+4. Initialize the database: `flask --app app init-db`
+5. Run the app: `flask --app app run --debug`
+6. Visit [localhost:5000](http://localhost:5000/) in your browser to see the app running.
 
 ## Running Linter/Test Suite
 
@@ -37,7 +38,7 @@ Run `pytest tests/` from the project root directory to execute the tests.
 Essentials:
 - [x] Set up a basic client that can call the Eventbrite API
 - [x] Make a skeleton for the webpage
-- [ ] Make the form fields functional
+- [x] Make the form fields functional
 - [ ] Cache data in db so we don't have to call the API all the time
 - [x] Calculate the transit time between the user's location and an event (Google Maps Routes API)
 - [x] Retrieve a list of events and output the names
@@ -45,12 +46,12 @@ Essentials:
 - [ ] Handle pagination in Eventbrite requests
 - [x] Filter out completed events
 - [x] Add some tests
-- [ ] Add validations for input
+- [x] Add validations for input
 
 Optional extras:
 - [ ] Make it look nice
 - [ ] Add filters for event tags? (include/exclude)
-- [ ] Add cost of event to display
+- [x] Add cost of event to display
 - [ ] Add max cost filter
 - [ ] Add other event data sources (library RSS feeds? parks district events, if they have some feed/api?)
 - [ ] Make travel time calculation slightly more sophisticated by setting desired arrival time (to account for different transit schedules on different days of week/times of day)
