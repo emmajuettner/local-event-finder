@@ -33,7 +33,6 @@
           {% for step in event["transit_steps"] %}
             {{ step["transit_emoji"] }} 
             <span class="transit-line" style="color:{{ step["transit_text_color"] }};background-color:{{ step["transit_bg_color"] }};">{{ step["transit_name"] }}</span>
-            </div>
           {% endfor %}
           </p>
           <p>{{ event["price"] }}</p>

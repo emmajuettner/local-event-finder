@@ -6,8 +6,22 @@ body {
 }
 
 input {
-    margin-top: 10px;
-    margin-bottom: 15px;
+  margin-top: 10px;
+  margin-bottom: 15px;
+  border: 1px solid gray;
+  border-radius: 2px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  padding-left: 5px;
+  width: 300px;
+}
+
+input[type="number"] {
+  width: 50px;
+}
+
+input[type="submit"] {
+  width: 100px;
 }
 
 .transit-line {
@@ -22,4 +36,17 @@ input {
     padding-top: 10px;
     padding-bottom: 10px;
     margin-bottom: 20px;
+}
+
+/** Remove the up and down arrows on the number input **/
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
 }
