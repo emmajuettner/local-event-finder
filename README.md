@@ -1,15 +1,19 @@
-# Local Event Finder (WIP)
+# Local Event Finder
 
 ## The Problem
-Let's say it's a Friday night and you have no plans for the weekend. You want to do something fun, but you're tired and don't want to spend a bunch of time planning logistics.
+Let's say it's a Friday night and you have no plans for the weekend. You want to do something fun, but you're tired and don't want to spend a bunch of time figuring out which local events are within a reasonable distance from home.
 
 ## The Proposed Solution
-An app where you can put in your location and the maximum time you're willing to spend in transit. The app will spit out a list of events from organizations you follow on Eventbrite matching your criteria.
+An app where you can put in your location and the maximum time you're willing to spend in transit. The app will spit out a list of events from Eventbrite matching your criteria.
 
 Each event should display a brief summary including:
 - Name of the event
-- How long it'll take to get there (plus info about which bus/train/etc you're taking)
-- When you'll have to leave home
+- How long it'll take to get there
+- Info about which bus/train/etc you're taking
+
+## A Caveat
+
+It turns out Eventbrite's API doesn't actually let you search events, nor venues, nor organizations. It also doesn't let you look up a user and get a list of organizations that user follows. For this reason, to get an initial list of venues whose events you're interested in, you have to look up their Eventbrite venue IDs and insert those into the database so that we can use that to pull a list of upcoming events at those venues.
 
 ## Configurations
 Configurable values are stored in the `.env` file. You can copy the example set of configurations to start with: `cp .starter-env .env`
