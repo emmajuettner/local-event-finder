@@ -31,7 +31,7 @@ def get_user_events():
     for venue in user_venues:
         venue_id = venue["venue_id"]
         venue_name = venue["name"]
-        venue_events = get_venue_events(venue_id)
+        venue_events = get_venue_events_paginated(venue_id)
         for event_id in venue_events:
             event = venue_events[event_id]
             user_events.append({
@@ -100,13 +100,26 @@ def get_venue(venue_id):
     response = requests.get(url, headers=headers)
     return response.json()
 
-def get_venue_events(venue_id):
+def get_venue_events_paginated(venue_id):
+    events = []
+    has_more_items = True
+    continuation = ""
+    # Retrieve as many pages of events as exist for the venue
+    while has_more_items:
+        response = get_venue_events_single_page(venue_id, continuation)
+        events += response.json()["events"]
+        has_more_items = response.json()["pagination"]["has_more_items"]
+        if "continuation" in response.json()["pagination"]:
+            continuation = response.json()["pagination"]["continuation"]
+    return construct_event_list(events)
+
+def get_venue_events_single_page(venue_id, continuation=""):
     print("Retrieving events for venue from Eventbrite API")
     url = BASE_URL + "/venues/" + venue_id + "/events/?order_by=start_asc&status=live"
+    if continuation != "":
+        url += "&continuation=" + continuation
     headers = {"Authorization" : get_auth(), "Content-Type" : "application/json"}
-    response = requests.get(url, headers=headers)
-    events = response.json()["events"]
-    return construct_event_list(events)
+    return requests.get(url, headers=headers)
     
 def construct_event_list(event_json):
     """ Constructs a list of event objects based on the "events" json element from the API """
